@@ -104,7 +104,7 @@ function rollDice(channelID, initName, adversaireName){
 		rollQuery(playerOne.name);
 		return bot.sendMessage({
 			to: channelID,
-			message: `:rocket:  ${initName} : **${playerOne.result}** | ${adversaireName} : **${playerTwo.result}**, $**{initName} wonnered!**  :rocket:`
+			message: `:rocket:  ${initName} : **${playerOne.result}** | ${adversaireName} : **${playerTwo.result}**, **${initName} wonnered!**  :rocket:`
 		});
 	}else{
 		rollQuery(playerTwo.name);
