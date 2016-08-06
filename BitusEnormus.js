@@ -28,6 +28,14 @@ var ladderboardSchema = new Schema({
 var ladderboardPlayer = mongoose.model('Ladder', ladderboardSchema);
 
 
+// var antoine = new ladderboardPlayer({name: 'antoine', victories:54});
+// var romain = new ladderboardPlayer({name: 'romain', victories:34});
+// var remi = new ladderboardPlayer({name: 'remi', victories:34});
+// var pierre = new ladderboardPlayer({name: 'pierre', victories:3});
+// antoine.save();
+// romain.save();
+// remi.save();
+// pierre.save();
 // bot.on('ready', function(event) {});
 // bot.on('presence', function(user, userID, status, gameName, event) {});
 // Save those for later on!
@@ -73,8 +81,53 @@ bot.on('message', function(user, userID, channelID, message, event) {
 	if(message === "!meme arthur"){
 		sendFiles(channelID, ['./images/arthur.jpg']);
 	}
+	if(message === "!ladder"){
+		ladderboardPlayer.find({})
+			.sort('-victories')
+			.exec(function(err, doc){
+				if(!err){
+					var ladder = doc;
+					if(ladder.length){
+						bot.sendMessage({
+							to: channelID,
+							message: ladder.map((player, index) => {
+								return `**${setPlace(index+1)}** ${setMedal(index+1)} ${player.name} : ${player.victories} victoires !\n\n`;
+							}).join('')
+						});
+					}else{
+						bot.sendMessage({
+							to: channelID,
+							message: `:rocket:  Aucun joueur n'a encore joué  :rocket:`
+						});
+					}
+				}
+		});
+	}
 });
 
+/**
+ * setMedal - set the medal for current rank
+ *
+ * @param  {integer} rank
+ * @return {string}
+ */
+function setMedal(rank){
+	if(rank === 1) return '  :medal:';
+	else return ':military_medal:';
+}
+
+/**
+ * setPlace - set the current number for place
+ *
+ * @param  {integer} rank
+ * @return {string}
+ */
+function setPlace(rank){
+	if(rank === 1) return '1st';
+	if(rank === 2) return '2nd';
+	if(rank === 3) return '3rd';
+	else return rank+'th';
+}
 
 /**
  * sayHelp - Display all commands
