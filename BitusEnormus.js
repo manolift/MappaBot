@@ -95,12 +95,20 @@ bot.on('message', function(user, userID, channelID, message, event) {
 							}).join('')
 						});
 					}else{
-						bot.sendMessage({
+					  bot.sendMessage({
 							to: channelID,
 							message: `:rocket:  Aucun joueur n'a encore joué  :rocket:`
 						});
 					}
 				}
+		});
+	}
+	if(message === "!help"){
+		bot.sendMessage({
+			to:channelID,
+			message: Commands.help.map((command) => {
+				return `:arrow_right: ${command.commandName} : ${command.explication} \n\n`;
+			}).join('')
 		});
 	}
 });

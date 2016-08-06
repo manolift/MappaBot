@@ -8,5 +8,9 @@
       "commandName": "!roll",
       "explication": "Dice random battle! :rocket:"
     }
+    {
+      "commandName": "!ladder",
+      "explication": "Ladderboard for games"
+    }
   ]
 }
