@@ -1,0 +1,32 @@
+{
+  "name": "bitusenormus",
+  "version": "1.0.0",
+  "description": "discord bot",
+  "main": "BitusEnormus.js",
+  "dependencies": {
+    "discord.io": "^1.12.0",
+    "forever": "^0.15.2",
+    "mongoose": "^4.5.8"
+  },
+  "devDependencies": {
+    "discord.io": "^1.13.4",
+    "mongoose": "^4.5.8"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antoine2vey/BitusEnormus.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "@shaark_",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antoine2vey/BitusEnormus/issues"
+  },
+  "homepage": "https://github.com/antoine2vey/BitusEnormus#readme"
+}

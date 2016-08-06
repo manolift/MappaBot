@@ -1,0 +1,12 @@
+{
+  "help":[
+    {
+      "commandName": "!help",
+      "explication": "Kappa"
+    },
+    {
+      "commandName": "!roll",
+      "explication": "Dice random battle! :rocket:"
+    }
+  ]
+}
