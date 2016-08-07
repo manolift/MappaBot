@@ -7,10 +7,30 @@
     {
       "commandName": "!roll",
       "explication": "Dice random battle! :rocket:"
-    }
+    },
     {
       "commandName": "!ladder",
       "explication": "Ladderboard for games"
+    },
+    {
+      "commandName": "!meme couteau",
+      "explication": "Famous chapi Ksabatier cut"
+    },
+    {
+      "commandName": "!meme arthur",
+      "explication": "Le fist has arrived"
+    },
+    {
+      "commandName": "!first",
+      "explication": "FIRST DE LA JOURNEE ET GAGNE 5K KEBAB"
+    },
+    {
+      "commandName": "!ladder first",
+      "explication": "Ladder des first :rocket:"
+    },
+    {
+      "commandName": "!meme issou",
+      "explication": "ISSOU CHACLA XD"
     }
   ]
 }
