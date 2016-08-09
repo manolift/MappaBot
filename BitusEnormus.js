@@ -33,6 +33,7 @@ if(env === "development"){
 var ladderboardSchema = new Schema({
 	name: String,
 	victories: {type: Number, default: 0},
+	gamesPlayed: {type: Number, default: 0},
 	bank: {type: Number, default: 0},
 	date: Date
 });
@@ -49,17 +50,20 @@ var Firster = mongoose.model('First', firstSchema);
 
 bot.on('ready', function(event){
 	bot.setPresence({
-		game: "coding"
+		game: "Coding himself"
 	});
 });
 
 bot.on('any', function(event){
-	if(new Date().getHours() >= 0 && new Date().getHours() < 12){
-		isFirst = false;
-	}else{
-		console.log('waiting for 0h00');
-	}
+
 });
+
+var now = new Date();
+var dateMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1, 0, 0, 0, 0)-now;
+if(dateMidnight<0){
+	isFirst = true;
+	dateMidnight+=86400000;
+}
 
 
 bot.on('message', function(user, userID, channelID, message, event) {
@@ -111,7 +115,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
 						bot.sendMessage({
 							to: channelID,
 							message: ladder.map((player, index) => {
-								return `**${setPlace(index+1)}** ${setMedal(index+1)} ${player.name} : ${player.victories} victoires et possède ${player.bank} kebabs!\n\n`;
+								return `**${setPlace(index+1)}** ${setMedal(index+1)} ${player.name} : ${player.victories} victoires et possède ${player.bank} kebabs!  (${getWinrate(player.victories, player.gamesPlayed)}% de winrate)\n\n`;
 							}).join('')
 						});
 					}else{
@@ -167,7 +171,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
 		});
 	}
 
-	if(message === "!first" && !isFirst){
+	if(message === "!first" && !isFirst || (new Date().getHours() >= 0 && new Date().getHours() < 12)){
 		firstQuery(user);
 		setMoney(user, 5000);
 		bot.sendMessage({
@@ -189,9 +193,13 @@ bot.on('message', function(user, userID, channelID, message, event) {
 					if(!doc.length){
 						getTodayMoney(user, channelID);
 					}else{
-						var date = doc[0].date;
+						var date;
+						if(doc[0].date == null){
+							getTodayMoney(user, channelID);
+						}
+						date = doc[0].date;
 						console.log('date in doc '+date);
-						var dateAfterOneDay = new Date(+doc[0].date + 1*24*60*60*1000);
+						var dateAfterOneDay = new Date(+date + 1*24*60*60*1000);
 						console.log('date after 1 day '+dateAfterOneDay);
 						var dateNow = new Date();
 						console.log('date maintenant '+dateNow);
@@ -210,7 +218,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
 			});
 	}
 
-	if(message==="issou"){
+	if(message==="!meme issou"){
 		sendFiles(channelID, ['./images/issou.jpg']);
 	}
 });
@@ -264,7 +272,8 @@ function rollDice(channelID, initName, adversaireName){
 	playerTwo.result = getRandomNumber();
 
 	if(playerOne.result > playerTwo.result){
-		rollQuery(playerOne.name);
+		winQuery(playerOne.name);
+		looseQuery(playerTwo.name);
 		setMoney(playerOne.name, 100);
 		setMoney(playerTwo.name, -50);
 		return bot.sendMessage({
@@ -272,7 +281,8 @@ function rollDice(channelID, initName, adversaireName){
 			message: `:rocket:  ${initName} : **${playerOne.result}** | ${adversaireName} : **${playerTwo.result}**, **${initName} wonnered! +100 kebabs**  :rocket:`
 		});
 	}else{
-		rollQuery(playerTwo.name);
+		winQuery(playerTwo.name);
+		looseQuery(playerOne.name);
 		setMoney(playerTwo.name, 100);
 		setMoney(playerOne.name, -50);
 		return bot.sendMessage({
@@ -294,44 +304,98 @@ function getRandomNumber(){
 
 
 /**
- * rollQuery - Construct query for MongoDB
+ * winQuery - Construct query for MongoDB
  *
  * @param  {string} Name of the player
  * @return {object}
  */
-function rollQuery(playerName){
+function winQuery(playerName){
 	var query = {name: playerName};
-	var update = {$inc: {'victories':1} };
+	var update = {$inc: {'victories':1, 'gamesPlayed':1} };
 	var options = {upsert: true, new: true, setDefaultsOnInsert: true};
 	ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc){
-		if(!err) console.error('updated!');
+		if(!err) console.log('Decrease victories by 1 and increase gamesPlayed by 1 for winner');
 	});
 }
 
+/**
+ * looseQuery - Query constructor for MongoDB
+ *
+ * @param  {integer} playerName
+ * @return {object}
+ */
+function looseQuery(playerName){
+	var query = {name: playerName};
+	var update = {$inc: {'victories':-1, 'gamesPlayed':1} };
+	var options = {upsert: true, new: true, setDefaultsOnInsert: true};
+	ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc){
+		if(!err) console.log(`Decrease victories by 1 and increase gamesPlayed by 1 for looser`);
+	});
+}
+
+
+/**
+ * firstQuery - Inscrease ladder's first by 1
+ *
+ * @param  {integer} firsterName
+ * @return {object}
+ */
 function firstQuery(firsterName){
 	var query = {name: firsterName};
 	var update = {$inc: {'timesHasBeenFirst':1} };
 	var options = {upsert: true, new: true, setDefaultsOnInsert: true};
 	Firster.findOneAndUpdate(query, update, options, function(err, doc){
-		if(!err) console.error('updated!');
+		if(!err) console.log(`Increased by 1 first for ${firsterName}`);
 	});
 }
 
+
+/**
+ * getWinrate - Get winrate from games
+ *
+ * @param  {integer} win
+ * @param  {integer} total
+ * @return {integer}
+ */
+function getWinrate(win, total){
+	if(win === 0 && total === 0){
+		return 0;
+	}else{
+		return ((win/total)*100).toFixed(2);
+	}
+}
+
+
+/**
+ * setMoney - Increase bank's player for amount
+ *
+ * @param  {string} playerName
+ * @param  {integer} amount
+ * @return {object}
+ */
 function setMoney(playerName, amount){
 	var query = {name: playerName};
 	var update = {$inc: {'bank': amount} };
 	var options = {upsert: true, new: true, setDefaultsOnInsert: true};
 	ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc){
-		if(!err) console.error('updated!');
+		if(!err) console.log(`Gave ${amount} kebabs to ${playerName}`);
 	});
 }
+
+
+/**
+ * getTodayMoney - Increase by 500 kebabs bank user - 24H cooldown
+ *
+ * @param  {string} user
+ * @param  {Snowflake} channelID
+ * @return {object}
+ */
 function getTodayMoney(user, channelID){
 	var query = {name: user};
 	var update = {$inc: {'bank':500} , $set: {date: new Date()}};
 	var options = {upsert: true, new: true, setDefaultsOnInsert: true};
 	ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc){
-		if(err) console.log(err);
-		if(!err) console.error('Gave 500 kebabs to '+user);
+		if(!err) console.log('Gave 500 kebabs to '+user);
 	});
 
 	bot.sendMessage({
