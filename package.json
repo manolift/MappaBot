@@ -4,6 +4,8 @@
   "description": "discord bot",
   "main": "BitusEnormus.js",
   "dependencies": {
+    "async": "^2.0.1",
+    "bluebird": "^3.4.1",
     "cleverbot-node": "^0.2.2",
     "cleverbot.io": "^1.0.4",
     "discord.io": "^1.12.0",
