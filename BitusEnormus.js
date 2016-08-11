@@ -7,7 +7,7 @@ var mongoose = require('mongoose'),
     env = process.env.NODE_ENV || "development",
     bot = new Discord.Client({
         autorun: true,
-        token: Utils.tokenDev
+        token: Utils.token
     }),
     Cleverbot = require('cleverbot-node');
 
@@ -256,19 +256,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
                      * Comparing bank vs amount
                      */
                     if (player.bank >= mise) {
-                        if (limitDown <= RandomNumber && limitUp >= RandomNumber) {
-                            setMoney(user, getGambleMoney(limitDown, limitUp, mise));
-                            bot.sendMessage({
-                                to: channelID,
-                                message: `:robot: ${user} fait ${RandomNumber} et gagne ${getGambleMoney(limitDown, limitUp, mise)} kebabs  :robot:`
-                            });
-                        } else {
-                            setMoney(user, -Math.abs(mise));
-                            bot.sendMessage({
-                                to: channelID,
-                                message: `:robot:  ${user} à fait ${RandomNumber} perds ${mise} kebabs sale MERDE  :robot:`
-                            });
-                        }
+                        getGambleMoney(limitDown, limitUp, mise, user, channelID);
                     } else {
                         bot.sendMessage({
                             to: channelID,
@@ -276,6 +264,10 @@ bot.on('message', function(user, userID, channelID, message, event) {
                         });
                     }
                 })
+                /**
+                 * catch error if user isnt in database. We should create one but f*ck off,
+                 * just create your user in db with `!argentstp`
+                 */
                 .catch(function(err){
                     if(err){
                         bot.sendMessage({
@@ -287,14 +279,9 @@ bot.on('message', function(user, userID, channelID, message, event) {
             } else {
                 bot.sendMessage({
                     to: channelID,
-                    message: `:robot: Met des chiffres dans ta demande ('!gamble [integer] ["integer"-"integer"]')  :robot:`
+                    message: `Met des chiffres dans ta demande ('!gamble [chiffre] ["chiffre"-"chiffre"]')  :robot:`
                 });
             }
-        } else {
-            bot.sendMessage({
-                to: channelID,
-                message: `:robot: Met deux chiffres dans ta fourchette ('!gamble [integer] ["integer"-"integer"]')  :robot:`
-            });
         }
     }
 });
@@ -368,12 +355,30 @@ function rollDice(channelID, initName, adversaireName) {
     }
 }
 
-function getGambleMoney(down, up, mise) {
+function getGambleMoney(down, up, mise, nbRandom, user, channelID) {
     var newUpper;
+    var MoneyToSet = Math.round((((((1 / newUpper) * 100) * mise)*0.85)-mise));
     if (parseInt(down) === 1) newUpper = up;
-    else newUpper = up - down;
+        else newUpper = up - down;
+    /**
+     * we set down to `1` because in the theory, `(down-down)+1`
+     * always equals to `1` thanks to @sc2aw <3
+     */
+    down = 1;
 
-    return Math.round(((1 / newUpper) * 100) * mise);
+    if(down <= nbRandom && newUpper >= nbRandom){
+        setMoney(user, MoneyToSet);
+        bot.sendMessage({
+            to: channelID,
+            message: `:robot: ${user} fait ${nbRandom} et gagne ${MoneyToSet} kebabs  :robot:`
+        });
+    }else{
+        setMoney(user, -Math.abs(mise));
+        bot.sendMessage({
+            to: channelID,
+            message: `:robot:  ${user} à fait ${nbRandom} perds ${mise} kebabs sale MERDE  :robot:`
+        });
+    }
 }
 
 /**
@@ -455,7 +460,7 @@ function firstQuery(firsterName) {
     };
     var updateLadder = {
         $inc: {
-            'bank': 5000
+            'bank': 500
         }
     };
     var options = {
@@ -467,7 +472,7 @@ function firstQuery(firsterName) {
         if (!err) console.log(`Increased by 1 first for ${firsterName}`);
     });
     ladderboardPlayer.findOneAndUpdate(query, updateLadder, options, function(err, doc) {
-        if (!err) console.log(`Added 5000 for ${firsterName}`);
+        if (!err) console.log(`Added 500000 for ${firsterName}`);
     });
 }
 
@@ -528,7 +533,7 @@ function getTodayMoney(user, channelID) {
     };
     var update = {
         $inc: {
-            'bank': 500
+            'bank': 50
         },
         $set:  {
             date: new Date()
@@ -540,12 +545,12 @@ function getTodayMoney(user, channelID) {
         setDefaultsOnInsert: true
     };
     ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {
-        if (!err) console.log('Gave 500 kebabs to ' + user);
+        if (!err) console.log('Gave 50 kebabs to ' + user);
     });
 
     bot.sendMessage({
         to: channelID,
-        message: `+500 kebabs pour ${user}`
+        message: `+50 kebabs pour ${user}`
     });
 }
 
