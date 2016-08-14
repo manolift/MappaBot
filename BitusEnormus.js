@@ -64,7 +64,7 @@ bot.on('ready', function(event) {
 
 bot.on('any', function(event) {});
 
-var msgToArray = message.split(' ');
+
 bot.on('message', function(user, userID, channelID, message, event) {
   if (message === "!first" && !isFirst && (new Date().getHours() >= 0 && new Date().getHours() < 12)) {
     isFirst = true;
@@ -215,11 +215,8 @@ bot.on('message', function(user, userID, channelID, message, event) {
       });
   }
 
-  if (message === "!meme issou") {
-    sendFiles(channelID, ['./images/issou.jpg']);
-  }
-
-  if (msgToArray[0] === "!gamble" && msgToArray.length === 3) {
+  if (message.split(' ')[0] === "!gamble" && message.split(' ').length === 3) {
+    var msgToArray = message.split(' ');
     var mise = msgToArray[1];
     var limit = msgToArray[2];
 
@@ -294,7 +291,7 @@ function setPlace(rank) {
 }
 
 function sayHelp() {
-  for (var i = 0; i < Commands.help.length; i++) {
+  for(var i in Commands.help){
     return `:star: ${Commands.help[i].commandName} : ${Commands.help[i].explication}`;
   }
 }
