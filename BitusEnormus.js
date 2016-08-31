@@ -163,6 +163,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
               to: channelID,
               message: firstLadder.map((person, index) => {
                 if (person.timesHasBeenFirst) {
+                  if(!person.name) return;
                   return `**${setPlace(index+1)}** ${setMedal(index+1)} ${person.name} : ${person.timesHasBeenFirst} first!\n\n`;
                 }
               }).join('')
@@ -184,7 +185,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
       }).join('')
     });
   }
-  if (message.match(/^(<@212251313449205761>)/g)) {
+  if (message.match(/^(<@198532347765850112>)/g)) {
     var msgArr = message.split(' ');
     msgArr.shift();
     Cleverbot.prepare(function() {
@@ -325,8 +326,6 @@ bot.on('message', function(user, userID, channelID, message, event) {
       });
     }
   }
-
-  console.log(userID);
 });
 
 var isValidName = function(name) {
