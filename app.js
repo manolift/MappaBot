@@ -9,27 +9,23 @@ var mongoose = require('mongoose'),
     autorun: true,
     token: Utils.token
   }),
-  Cleverbot = require('cleverbot-node');
+  Cleverbot = require('cleverbot-node'),
+  fs = require('fs'),
+  Lame = require('lame'),
+  spawn = require('child_process').spawn;
 
 cleverbot = new Cleverbot();
 mongoose.Promise = require('bluebird');
-
 var initRoll = false;
 var hasRolled = false;
 var isFirst = false;
 var playerOne = {};
 var playerTwo = {};
-
-/*Change your IP Adress here*/
+var SERVER_ID;
+var CHANNEL_ID;
+var BOT_CHANNEL_ID;
 const IP_ADRESS = Utils.ip;
-
-/**
- * DATABASE SETUP
- */
 mongoose.connect('mongodb://'+IP_ADRESS+'/BitusEnormus');
-
-
-
 var ladderboardSchema = new Schema({
   name: String,
   victories: {
@@ -51,10 +47,17 @@ var ladderboardSchema = new Schema({
 var ladderboardPlayer = mongoose.model('Ladder', ladderboardSchema);
 bot.on('ready', function(event) {
   bot.setPresence({
-    game: "Coding himself"
+    game: "!help"
   });
 });
-//EVERYTHING SHOULD BE RIGHT UPPER
+bot.on('disconnect', (err, code) => {
+  console.log('YOOOO CATCHED AN ERROR RIGHT THERE!!!!');
+  console.log('______________________________________');
+  console.log('Error :'+err);
+  console.log('Code :'+code);
+
+  bot.connect();
+});
 bot.on('any', function(event) {
   if (event) {
     const today = new Date();
@@ -90,10 +93,14 @@ bot.on('any', function(event) {
         });
       }
     }
+    if(event.t === "GUILD_CREATE"){
+      SERVER_ID = event.d.id;
+    }
+    if(event.t === "VOICE_STATE_UPDATE"){
+      CHANNEL_ID = event.d.channel_id;
+    }
   }
 });
-
-
 bot.on('message', function(user, userID, channelID, message, event) {
   if (message === "!roll" && !initRoll) {
     initRoll = true;
@@ -134,6 +141,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
             bot.sendMessage({
               to: channelID,
               message: ladder.map((player, index) => {
+                if(!player.name) return;
                 return `**${setPlace(index+1)}** ${setMedal(index+1)} ${player.name} : ${player.victories} victoires et possède ${player.bank} kebabs!  (${getWinrate(player.victories, player.gamesPlayed)}% de winrate)\n\n`;
               }).join('')
             });
@@ -157,7 +165,6 @@ bot.on('message', function(user, userID, channelID, message, event) {
       .exec(function(err, doc) {
         if (!err) {
           var firstLadder = doc;
-          console.log(firstLadder);
           if (firstLadder.length) {
             bot.sendMessage({
               to: channelID,
@@ -199,7 +206,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
   }
   if (message === "!argentstp") {
     ladderboardPlayer.find({
-        name: user
+        playerId: userID
       })
       .exec(function(err, doc) {
         if (!err) {
@@ -230,6 +237,8 @@ bot.on('message', function(user, userID, channelID, message, event) {
     const msgToArray = message.split(' ');
     var mise = msgToArray[1];
     var limit = msgToArray[2];
+
+    if(!isFinite(mise) || isNaN(mise)) return;
 
     /**
      * We pass `compareNumber` function in parameters to filter REAL
@@ -287,6 +296,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
     }
   }
   if (message.split(' ')[0] === "!give" && message.split(' ').length === 3 && !isNaN(message.split(' ')[2])) {
+    //Check if number is finite
     const msgArray = message.split(' ');
     const name = msgArray[1];
     const id = msgArray[1].replace(/\D/g, '');
@@ -326,10 +336,88 @@ bot.on('message', function(user, userID, channelID, message, event) {
       });
     }
   }
-});
+  if (message === "!airhorn"){
+    const file = './airhorn.mp3';
+    BOT_CHANNEL_ID = CHANNEL_ID;
+    bot.joinVoiceChannel(BOT_CHANNEL_ID, err => {
+      if(err){
+        bot.sendMessage({
+          to:channelID,
+          message: 'Il faut être dans un channel pour initialiser le bot (re-rejoinds le)'
+        });
+      } else {
+        bot.getAudioContext({channel:BOT_CHANNEL_ID, stereo:true}, (err, stream) =>{
+          playMP3(stream, file);
+        });
 
+        setTimeout(() =>{
+          bot.leaveVoiceChannel(BOT_CHANNEL_ID);
+        }, 4000);
+      }
+    });
+  }
+  if (message === "!mappa"){
+    const mappaImages = require('./Mappa.json').album;
+    var nbRandom = Math.floor(Math.random() * mappaImages.length);
+    bot.sendMessage({
+      to:channelID,
+      message: mappaImages[nbRandom].link
+    });
+  }
+  if(message === "!eject"){
+    bot.leaveVoiceChannel(BOT_CHANNEL_ID);
+  }
+  if(message === "!deuxkatorze"){
+    const hugo = './deux.ogg';
+    BOT_CHANNEL_ID = CHANNEL_ID;
+    bot.joinVoiceChannel(BOT_CHANNEL_ID, err => {
+      if(err){
+        bot.sendMessage({
+          to:channelID,
+          message: 'Il faut être dans un channel pour initialiser le bot (re-rejoinds le)'
+        });
+      } else {
+        bot.getAudioContext({channel:BOT_CHANNEL_ID, stereo:true}, (err, stream) =>{
+          playMP3(stream, hugo);
+        });
+
+        setTimeout(() =>{
+          bot.leaveVoiceChannel(BOT_CHANNEL_ID);
+        }, 24000);
+      }
+    });
+  }
+  if(message.split(' ')[0] === "!ty"){
+    var msgToTransform = message.toLowerCase().split('');
+    var modify = msgToTransform.splice(0,4);
+
+    bot.deleteMessage({
+      to:channelID,
+      messageID: event.d.id
+    });
+
+    if(msgToTransform.join('').match(/^[a-zA-Z ]*$/g)){
+        console.log('in');
+        bot.sendMessage({
+          to:channelID,
+          message: msgToTransform.map((letter) => {
+            if(letter === " ") return ' ';
+            return `:regional_indicator_${letter}:`
+          }).join('')
+        });
+    }
+  }
+});
+const playMP3 = (outputStream, inputFile) => {
+  var lame = new Lame.Decoder();
+	var input = fs.createReadStream(inputFile);
+	lame.once('readable', function() {
+		outputStream.send(lame);
+	});
+	input.pipe(lame);
+};
 var isValidName = function(name) {
-  if (name.match(/^<@(?:[0-9]){18}>/g)) return true;
+  if (name.match(/^<@(?:[0-9]*)>/g)) return true;
 };
 function setMedal(rank) {
   if (rank === 1) return '  :medal:';
@@ -383,9 +471,15 @@ function getGambleMoney(down, up, mise, nbRandom, user, userId, channelID) {
     newUpper = up;
   }
 
-  var MoneyToSet = Math.round(((((newDown / newUpper) * 100) * mise) * 0.85) - mise);
+  var MoneyToSet = Math.round(((((newDown / newUpper) * 100) * mise) * 1) - mise);
 
-  if (down <= nbRandom && up >= nbRandom) {
+  if (down <= nbRandom && up >= nbRandom && down === up) {
+    setMoney(userId, (mise*100));
+    bot.sendMessage({
+      to:channelID,
+      message: `:robot: WOW ${user.toUppercase()} LE DIEU QUI GAGNE ${mise*100} KEBABS!!!1!`
+    });
+  } else if (down <= nbRandom && up >= nbRandom){
     setMoney(userId, MoneyToSet);
     bot.sendMessage({
       to: channelID,
@@ -423,9 +517,7 @@ function winQuery(playerName, playerId) {
     new: true,
     setDefaultsOnInsert: true
   };
-  ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {
-    if (!err) console.log('Decrease victories by 1 and increase gamesPlayed by 1 for winner');
-  });
+  ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {});
 }
 function looseQuery(playerName, playerId) {
   var query = {
@@ -547,6 +639,8 @@ function getTodayMoney(user, userId, channelID) {
   });
 }
 function increaseBank(playerId, amount){
+  if(!isFinite(amount)) return;
+
   var query = {
     playerId: playerId
   };
