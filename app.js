@@ -16,6 +16,11 @@ var mongoose = require('mongoose'),
 
 cleverbot = new Cleverbot();
 mongoose.Promise = require('bluebird');
+
+/**
+ * we put an offset in case there is any lags or what
+ **/
+const OFFSET = 2000;
 var initRoll = false;
 var hasRolled = false;
 var isFirst = false;
@@ -45,20 +50,22 @@ var ladderboardSchema = new Schema({
   timesHasBeenFirst: Number
 });
 var ladderboardPlayer = mongoose.model('Ladder', ladderboardSchema);
-bot.on('ready', function(event) {
+
+
+bot.on('ready', event => {
   bot.setPresence({
     game: "!help"
   });
 });
-bot.on('disconnect', (err, code) => {
-  console.log('YOOOO CATCHED AN ERROR RIGHT THERE!!!!');
-  console.log('______________________________________');
-  console.log('Error :'+err);
-  console.log('Code :'+code);
 
+
+bot.on('disconnect', (err, code) => {
+  console.error('errcode %s', code);
   bot.connect();
 });
-bot.on('any', function(event) {
+
+
+bot.on('any', event => {
   if (event) {
     const today = new Date();
     const tommorow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
@@ -101,7 +108,10 @@ bot.on('any', function(event) {
     }
   }
 });
-bot.on('message', function(user, userID, channelID, message, event) {
+
+
+bot.on('message', (user, userID, channelID, message, event) => {
+
   if (message === "!roll" && !initRoll) {
     initRoll = true;
     playerOne = new Player(user, userID, true, undefined);
@@ -110,6 +120,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
       message: ':rocket:  ' + user + ' à démarré un duel! Utilisez "!roll me" pour l\'affronter  :rocket:'
     });
   }
+
   if (message === "!roll me" && initRoll && userID !== playerOne.id && !hasRolled) {
     /*Prevent from spamming !roll me that cause to add 'null' in database...*/
     hasRolled = true;
@@ -131,6 +142,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
       playerTwo = {};
     }, 1000);
   }
+
   if (message === "!ladder") {
     ladderboardPlayer.find({})
       .sort('-victories')
@@ -154,6 +166,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
         }
       });
   }
+
   if (message === "!ladder first") {
     //If our player has more than 1 win, we can display him, otherwise, no!
     ladderboardPlayer.find({
@@ -184,6 +197,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
         }
       });
   }
+
   if (message === "!help") {
     bot.sendMessage({
       to: channelID,
@@ -192,6 +206,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
       }).join('')
     });
   }
+
   if (message.match(/^(<@198532347765850112>)/g)) {
     var msgArr = message.split(' ');
     msgArr.shift();
@@ -204,6 +219,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
       });
     });
   }
+
   if (message === "!argentstp") {
     ladderboardPlayer.find({
         playerId: userID
@@ -233,6 +249,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
         }
       });
   }
+
   if (message.split(' ')[0] === "!gamble" && message.split(' ').length === 3) {
     const msgToArray = message.split(' ');
     var mise = msgToArray[1];
@@ -260,12 +277,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
        * If so, we check if everything is a number and our `mise`>0
        */
       if (!isNaN(mise) && !isNaN(limitUp) && !isNaN(limitDown) && mise > 0) {
-        /* I'm still investigating why I cannot return any value
-         * from a classic function, so I use bluebird promise library
-         * directly into my function see @var promise
-         */
         promise.then(function(player) {
-
             if (player.bank >= mise) {
               getGambleMoney(limitDown, limitUp, mise, RandomNumber, user, userID, channelID);
             } else {
@@ -295,6 +307,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
       }
     }
   }
+
   if (message.split(' ')[0] === "!give" && message.split(' ').length === 3 && !isNaN(message.split(' ')[2])) {
     //Check if number is finite
     const msgArray = message.split(' ');
@@ -336,8 +349,10 @@ bot.on('message', function(user, userID, channelID, message, event) {
       });
     }
   }
+
   if (message === "!airhorn"){
-    const file = './airhorn.mp3';
+    const FILE = './airhorn.mp3';
+    const FILE_LENGTH = 4;
     BOT_CHANNEL_ID = CHANNEL_ID;
     bot.joinVoiceChannel(BOT_CHANNEL_ID, err => {
       if(err){
@@ -346,16 +361,39 @@ bot.on('message', function(user, userID, channelID, message, event) {
           message: 'Il faut être dans un channel pour initialiser le bot (re-rejoinds le)'
         });
       } else {
-        bot.getAudioContext({channel:BOT_CHANNEL_ID, stereo:true}, (err, stream) =>{
-          playMP3(stream, file);
+        bot.getAudioContext({channel:BOT_CHANNEL_ID, stereo: true}, (err, stream) =>{
+          playMP3(stream, FILE);
         });
 
         setTimeout(() =>{
           bot.leaveVoiceChannel(BOT_CHANNEL_ID);
-        }, 4000);
+        }, (FILE_LENGTH*1000) + OFFSET);
       }
     });
   }
+
+  if (message === "!deuxkatorze"){
+    const FILE = './deux.ogg';
+    const FILE_LENGTH = 24;
+    BOT_CHANNEL_ID = CHANNEL_ID;
+    bot.joinVoiceChannel(BOT_CHANNEL_ID, err => {
+      if(err){
+        bot.sendMessage({
+          to:channelID,
+          message: 'Il faut être dans un channel pour initialiser le bot (re-rejoinds le)'
+        });
+      } else {
+        bot.getAudioContext({channel:BOT_CHANNEL_ID, stereo:true}, (err, stream) => {
+          playMP3(stream, FILE);
+        });
+
+        setTimeout(() =>{
+          bot.leaveVoiceChannel(BOT_CHANNEL_ID);
+        }, (FILE_LENGTH*1000) + OFFSET);
+      }
+    });
+  }
+
   if (message === "!mappa"){
     const mappaImages = require('./Mappa.json').album;
     var nbRandom = Math.floor(Math.random() * mappaImages.length);
@@ -364,30 +402,12 @@ bot.on('message', function(user, userID, channelID, message, event) {
       message: mappaImages[nbRandom].link
     });
   }
-  if(message === "!eject"){
+
+  if (message === "!eject"){
     bot.leaveVoiceChannel(BOT_CHANNEL_ID);
   }
-  if(message === "!deuxkatorze"){
-    const hugo = './deux.ogg';
-    BOT_CHANNEL_ID = CHANNEL_ID;
-    bot.joinVoiceChannel(BOT_CHANNEL_ID, err => {
-      if(err){
-        bot.sendMessage({
-          to:channelID,
-          message: 'Il faut être dans un channel pour initialiser le bot (re-rejoinds le)'
-        });
-      } else {
-        bot.getAudioContext({channel:BOT_CHANNEL_ID, stereo:true}, (err, stream) =>{
-          playMP3(stream, hugo);
-        });
 
-        setTimeout(() =>{
-          bot.leaveVoiceChannel(BOT_CHANNEL_ID);
-        }, 24000);
-      }
-    });
-  }
-  if(message.split(' ')[0] === "!ty"){
+  if (message.split(' ')[0] === "!ty"){
     var msgToTransform = message.toLowerCase().split('');
     var modify = msgToTransform.splice(0,4);
 
@@ -397,8 +417,7 @@ bot.on('message', function(user, userID, channelID, message, event) {
     });
 
     if(msgToTransform.join('').match(/^[a-zA-Z ]*$/g)){
-        console.log('in');
-        bot.sendMessage({
+        return bot.sendMessage({
           to:channelID,
           message: msgToTransform.map((letter) => {
             if(letter === " ") return ' ';
@@ -406,8 +425,13 @@ bot.on('message', function(user, userID, channelID, message, event) {
           }).join('')
         });
     }
+
+    return;
   }
+
 });
+
+
 const playMP3 = (outputStream, inputFile) => {
   var lame = new Lame.Decoder();
 	var input = fs.createReadStream(inputFile);
@@ -416,28 +440,36 @@ const playMP3 = (outputStream, inputFile) => {
 	});
 	input.pipe(lame);
 };
-var isValidName = function(name) {
+
+const isValidName = name => {
   if (name.match(/^<@(?:[0-9]*)>/g)) return true;
 };
-function setMedal(rank) {
+
+const setMedal = rank => {
   if (rank === 1) return '  :medal:';
   else return ':military_medal:';
 }
-function setPlace(rank) {
-  if (rank === 1) return '1st';
-  if (rank === 2) return '2nd';
-  if (rank === 3) return '3rd';
-  else return rank + 'th';
+
+const setPlace = rank => {
+  if (rank === 1)
+    return '1st';
+  else if (rank === 2)
+    return '2nd';
+  else if (rank === 3)
+    return '3rd';
+  else
+    return rank + 'th';
 }
-function sayHelp() {
+
+const sayHelp = () =>{
   for (var i in Commands.help) {
     return `:star: ${Commands.help[i].commandName} : ${Commands.help[i].explication}`;
   }
 }
-function rollDice(channelID, initName, initerId, adversaireName, adversaireId) {
+
+const rollDice = (channelID, initName, initerId, adversaireName, adversaireId) => {
   playerOne.result = getRandomNumber();
   playerTwo.result = getRandomNumber();
-
   if (playerOne.result > playerTwo.result) {
     winQuery(playerOne.name, playerOne.id);
     looseQuery(playerTwo.name, playerTwo.id);
@@ -458,9 +490,8 @@ function rollDice(channelID, initName, initerId, adversaireName, adversaireId) {
     });
   }
 }
-function getGambleMoney(down, up, mise, nbRandom, user, userId, channelID) {
 
-  /*pure formatage, à ignorer*/
+const getGambleMoney = (down, up, mise, nbRandom, user, userId, channelID) => {
   var newUpper;
   var newDown;
 
@@ -471,7 +502,7 @@ function getGambleMoney(down, up, mise, nbRandom, user, userId, channelID) {
     newUpper = up;
   }
 
-  var MoneyToSet = Math.round(((((newDown / newUpper) * 100) * mise) * 1) - mise);
+  var MoneyToSet = Math.round((((newDown / newUpper)* 100) * mise) - 500);
 
   if (down <= nbRandom && up >= nbRandom && down === up) {
     setMoney(userId, (mise*100));
@@ -493,13 +524,16 @@ function getGambleMoney(down, up, mise, nbRandom, user, userId, channelID) {
     });
   }
 }
-function compareNumber(a, b) {
+
+const compareNumber = (a, b) => {
   return a - b;
 }
-function getRandomNumber() {
+
+const getRandomNumber = () => {
   return Math.floor(Math.random() * 100) + 1;
 }
-function winQuery(playerName, playerId) {
+
+const winQuery = (playerName, playerId) => {
   var query = {
     playerId: playerId
   };
@@ -519,7 +553,8 @@ function winQuery(playerName, playerId) {
   };
   ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {});
 }
-function looseQuery(playerName, playerId) {
+
+const looseQuery = (playerName, playerId) => {
   var query = {
     playerId: playerId
   };
@@ -538,7 +573,8 @@ function looseQuery(playerName, playerId) {
   };
   ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {});
 }
-function firstQuery(firsterName, firsterId) {
+
+const firstQuery = (firsterName, firsterId) => {
   var query = {
     playerId: firsterId
   };
@@ -558,17 +594,19 @@ function firstQuery(firsterName, firsterId) {
   };
   ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {});
 }
-function getWinrate(win, total) {
+
+const getWinrate = (win, total) => {
   if (win === 0 && total === 0) {
     return 0;
   } else {
     return ((win / total) * 100).toFixed(2);
   }
 }
-function sendFiles(channelID, fileArr, interval) {
-  var resArr = [],
-    len = fileArr.length,
-    callback = typeof(arguments[2]) === 'function' ? arguments[2] : arguments[3];
+
+const sendFiles = (channelID, fileArr, interval) => {
+  const resArr = [],
+      len = fileArr.length,
+      callback = typeof(arguments[2]) === 'function' ? arguments[2] : arguments[3];
   if (typeof(interval) !== 'number') interval = 1000;
 
   function _sendFiles() {
@@ -592,7 +630,8 @@ function sendFiles(channelID, fileArr, interval) {
   }
   _sendFiles();
 }
-function setMoney(playerId, amount) {
+
+const setMoney = (playerId, amount) => {
   var query = {
     playerId: playerId
   };
@@ -608,13 +647,15 @@ function setMoney(playerId, amount) {
   };
   ladderboardPlayer.findOneAndUpdate(query, update, options, function(err, doc) {});
 }
-function Player(playerName, playerID, hasInit, rollResult) {
+
+const Player = (playerName, playerID, hasInit, rollResult) => {
   this.hasInit = hasInit;
   this.name = playerName;
   this.id = playerID;
   this.result = rollResult;
 }
-function getTodayMoney(user, userId, channelID) {
+
+const getTodayMoney = (user, userId, channelID) => {
   var query = {
     playerId: userId
   };
@@ -638,7 +679,8 @@ function getTodayMoney(user, userId, channelID) {
     message: `+50 kebabs pour ${user}`
   });
 }
-function increaseBank(playerId, amount){
+
+const increaseBank = (playerId, amount) => {
   if(!isFinite(amount)) return;
 
   var query = {
