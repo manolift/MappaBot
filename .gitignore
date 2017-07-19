@@ -1,2 +1,5 @@
 dist
 node_modules
+sounds/
+mappa.json
+.env
