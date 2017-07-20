@@ -1,5 +1,8 @@
 dist
 node_modules
-sounds/
+src/commands/sounds/sounds/*
+src/settings.sqlite3
 mappa.json
 .env
+.DS_Store
+**/.DS_Store

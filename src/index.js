@@ -1,36 +1,28 @@
 /**
  * INV LINK: https://discordapp.com/api/oauth2/authorize?client_id=336909405981376524&scope=bot&permissions=0
  */
-import Discord from 'discord.js';
-import * as env from 'dotenv';
-import imageLibrary from '../mappa.json';
-import { Player, AudioTracks } from './player';
+const Commando = require('discord.js-commando');
+const sqlite = require('sqlite');
+const env = require('dotenv');
+const path = require('path');
 
-// Config
-const client = new Discord.Client();
 env.config();
-
-client.on('ready', () => {
-  console.log('I am ready!');
+const log = arg => console.log(arg);
+const client = new Commando.Client({
+  owner: process.env.OWNER_ID,
 });
 
-client.on('message', (message) => {
-  const memberRoles = message.member.roles;
-  if (memberRoles.exists('name', 'Random')) {
-    return message.channel.send(':robot: Désolé mais tu n\'est pas autorisé à utiliser le bot :robot:');
-  }
+client.on('ready', () => log('Bot is ready!'));
 
-  if (message.content === '!mappa') {
-    const len = imageLibrary.album.length;
-    const randomIndex = Math.floor(Math.random() * (len - 0)) + 0;
+client.setProvider(
+    sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
+).catch(console.error);
 
-    message.channel.send(imageLibrary.album[randomIndex].link);
-  }
-
-  if (AudioTracks[message.content]) {
-    const { voiceChannel } = message.member;
-    new Player(voiceChannel, AudioTracks[message.content]).playFile();
-  }
-});
+client.registry
+  .registerGroups([
+    ['sounds', 'Soundbox'],
+  ])
+  .registerDefaults()
+  .registerCommandsIn(path.join(__dirname, 'commands'));
 
 client.login(process.env.DISCORD_TOKEN);
