@@ -12,15 +12,17 @@ const client = new Commando.Client({
   owner: process.env.OWNER_ID,
 });
 
-client.on('ready', () => log('Bot is ready!'));
+client.on('ready', () => log('Bot is ready fdp!'));
 
 client.setProvider(
-    sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
+  sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
 ).catch(console.error);
 
 client.registry
   .registerGroups([
     ['sounds', 'Soundbox'],
+    ['album', 'Album Mappa'],
+    ['add', 'Ajoute une musique'],
   ])
   .registerDefaults()
   .registerCommandsIn(path.join(__dirname, 'commands'));
