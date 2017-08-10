@@ -15,11 +15,6 @@ module.exports = class AddFileCommand extends Commando.Command {
       examples: ['!add'],
       argsCount: 0,
     });
-
-    this.hasMP3Extension = (file) => {
-      const array = file.split('.');
-      return array[array.length - 1] === 'mp3';
-    };
   }
 
   async run(message, args) {
@@ -27,17 +22,22 @@ module.exports = class AddFileCommand extends Commando.Command {
       message.channel.send(':rotating_light: Tu n\'as pas envoyé de fichier :rotating_light:');
     }
 
+    const hasMP3Extension = (file) => {
+      const array = file.split('.');
+      return array[array.length - 1] === 'mp3';
+    };
+
     const { filename, url } = message.attachments.first();
 
-    if (this.hasMP3Extension(filename)) {
-      return request
-        .get(url)
-        .on('error', () => {
-          message.channel.send(':rotating_light: Erreur dans le téléchargement :rotating_light:');
-        })
-        .pipe(fs.createWriteStream(path.join(__dirname, '..', 'sounds', 'sounds', filename)));
+    if (!hasMP3Extension(filename)) {
+      return message.channel.send(':rotating_light: Envoie un MP3 :rotating_light:');
     }
 
-    message.channel.send(':rotating_light: Envoie un MP3 :rotating_light:');
+    request
+      .get(url)
+      .on('error', () => {
+        message.channel.send(':rotating_light: Erreur dans le téléchargement :rotating_light:');
+      })
+      .pipe(fs.createWriteStream(path.join(__dirname, '..', 'sounds', 'sounds', filename)))
   }
 };
