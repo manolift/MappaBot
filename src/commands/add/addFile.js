@@ -17,6 +17,11 @@ module.exports = class AddFileCommand extends Commando.Command {
     });
   }
 
+  static hasMP3Extension(file) {
+    const array = file.split('.');
+    return array[array.length - 1] === 'mp3';
+  }
+
   async run(message, args) {
     if (!message.attachments.first()) {
       message.channel.send(':rotating_light: Tu n\'as pas envoyé de fichier :rotating_light:');
@@ -34,10 +39,5 @@ module.exports = class AddFileCommand extends Commando.Command {
     }
 
     message.channel.send(':rotating_light: Envoie un MP3 :rotating_light:');
-  }
-
-  static hasMP3Extension(file) {
-    const array = file.split('.');
-    return array[array.length - 1] === 'mp3';
   }
 };
