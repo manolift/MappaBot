@@ -15,11 +15,11 @@ module.exports = class AddFileCommand extends Commando.Command {
       examples: ['!add'],
       argsCount: 0,
     });
-  }
 
-  static hasMP3Extension(file) {
-    const array = file.split('.');
-    return array[array.length - 1] === 'mp3';
+    this.hasMP3Extension = (file) => {
+      const array = file.split('.');
+      return array[array.length - 1] === 'mp3';
+    };
   }
 
   async run(message, args) {
