@@ -1,5 +1,5 @@
 const Commando = require('discord.js-commando');
-const photos = require('../../../mappa.json').album;
+const Photos = require('../../db/models/album');
 
 module.exports = class AlbumCommand extends Commando.Command {
   constructor(client) {
@@ -13,12 +13,23 @@ module.exports = class AlbumCommand extends Commando.Command {
       examples: ['!mappa'],
       argsCount: 0,
     });
+
+    this.random = null;
   }
 
-  async run(message, args) {
-    const len = photos.length;
-    const random = Math.floor(Math.random() * (len - 0)) + 0;
+  async getPhotosLength() {
+    return Photos.count();
+  }
 
-    message.channel.send('', { file: photos[random].link });
+  async getRandomPhoto() {
+    return Photos.findOne().skip(this.random);
+  }
+
+  async run(message) {
+    const photo = await this.getRandomPhoto();
+    const len = await this.getPhotosLength();
+    this.random = Math.floor(Math.random() * len);
+
+    message.channel.send('', { file: photo.link });
   }
 };

@@ -5,6 +5,7 @@ const Commando = require('discord.js-commando');
 const sqlite = require('sqlite');
 const env = require('dotenv');
 const path = require('path');
+const initMongo = require('./db/config');
 
 env.config();
 const log = arg => console.log(arg);
@@ -12,7 +13,10 @@ const client = new Commando.Client({
   owner: process.env.OWNER_ID,
 });
 
-client.on('ready', () => log('Bot is ready fdp!'));
+client.on('ready', () => {
+  initMongo();
+  log('Bot is ready');
+});
 
 client.setProvider(
   sqlite.open(path.join(__dirname, 'settings.sqlite3')).then(db => new Commando.SQLiteProvider(db))
@@ -23,6 +27,7 @@ client.registry
     ['sounds', 'Soundbox'],
     ['album', 'Album Mappa'],
     ['add', 'Ajoute une musique'],
+    ['first', 'Chope le first'],
   ])
   .registerDefaults()
   .registerCommandsIn(path.join(__dirname, 'commands'));

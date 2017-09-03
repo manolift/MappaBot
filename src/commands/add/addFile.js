@@ -38,6 +38,6 @@ module.exports = class AddFileCommand extends Commando.Command {
       .on('error', () => {
         message.channel.send(':rotating_light: Erreur dans le téléchargement :rotating_light:');
       })
-      .pipe(fs.createWriteStream(path.join(__dirname, '..', 'sounds', 'sounds', filename)))
+      .pipe(fs.createWriteStream(path.join(__dirname, '..', 'sounds', 'sounds', filename)));
   }
 };
