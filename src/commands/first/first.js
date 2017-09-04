@@ -1,4 +1,6 @@
 const Commando = require('discord.js-commando');
+const first = require('../../modules/first');
+const user = require('../../modules/user');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -15,7 +17,13 @@ module.exports = class FirstCommand extends Commando.Command {
   }
 
   run(message) {
-    //TODO: write module to set global isfirst module
-    message.channel.send('yohooo');
+
+    if (first.hasBeenDone()) {
+      return message.channel.send('First déjà fait..');
+    }
+
+    first.do(() => {
+      user.didFirst(message.channel, message.author.id);
+    });
   }
 };
