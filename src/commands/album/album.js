@@ -1,5 +1,6 @@
 const Commando = require('discord.js-commando');
 const Photos = require('../../db/models/album');
+const sweetMessages = require('../../modules/sweetMessages');
 
 module.exports = class AlbumCommand extends Commando.Command {
   constructor(client) {
@@ -30,6 +31,6 @@ module.exports = class AlbumCommand extends Commando.Command {
     this.random = Math.floor(Math.random() * len);
     const photo = await this.getRandomPhoto();
 
-    message.channel.send('', { file: photo.link });
+    sweetMessages.sendImage(message, photo.link);
   }
 };

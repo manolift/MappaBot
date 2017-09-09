@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const first = require('../../modules/first');
 const user = require('../../modules/user');
+const sweetMessages = require('../../modules/sweetMessages');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -17,13 +18,24 @@ module.exports = class FirstCommand extends Commando.Command {
   }
 
   run(message) {
-
     if (first.hasBeenDone()) {
-      return message.channel.send('First déjà fait..');
+      sweetMessages.addError({
+        name: 'Trop tard',
+        value: 'Le first à déjà été pris :weary:',
+      });
+
+      return sweetMessages.send(message);
     }
 
-    first.do(() => {
-      user.didFirst(message.channel, message.author.id);
+    return first.do(() => {
+      user.didFirst(message.author.id);
+
+      sweetMessages.addValid({
+        name: 'FIRST',
+        value: `Bien joué! Tu gagne ${user.firstGive} :burrito: !`,
+      });
+
+      return sweetMessages.send(message);
     });
   }
 };
