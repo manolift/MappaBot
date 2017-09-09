@@ -26,8 +26,8 @@ client.registry
   .registerGroups([
     ['sounds', 'Soundbox'],
     ['album', 'Album Mappa'],
-    ['add', 'Ajoute une musique'],
     ['first', 'Chope le first'],
+    ['games', 'Mini jeux'],
   ])
   .registerDefaults()
   .registerCommandsIn(path.join(__dirname, 'commands'));

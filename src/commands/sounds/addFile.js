@@ -8,8 +8,8 @@ module.exports = class AddFileCommand extends Commando.Command {
     super(client, {
       name: 'add',
       aliases: ['add'],
-      group: 'add',
-      memberName: 'add',
+      group: 'sounds',
+      memberName: 'add-sound',
       description: 'Ajouter une musique',
       details: 'Ajoute une musique a la collection',
       examples: ['!add'],
