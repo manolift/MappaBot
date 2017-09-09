@@ -28,6 +28,7 @@ client.registry
     ['album', 'Album Mappa'],
     ['first', 'Chope le first'],
     ['games', 'Mini jeux'],
+    ['infos', 'Informations'],
   ])
   .registerDefaults()
   .registerCommandsIn(path.join(__dirname, 'commands'));
