@@ -26,9 +26,9 @@ module.exports = class AlbumCommand extends Commando.Command {
   }
 
   async run(message) {
-    const photo = await this.getRandomPhoto();
     const len = await this.getPhotosLength();
     this.random = Math.floor(Math.random() * len);
+    const photo = await this.getRandomPhoto();
 
     message.channel.send('', { file: photo.link });
   }
