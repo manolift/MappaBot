@@ -7,20 +7,23 @@ class User {
     this.firstGive = this.defaultGive * this.ratio;
   }
 
-  didFirst(channel, id) {
-    user
+  userQuery(userId, amount) {
+    return user
       .findOneAndUpdate(
-        { userId: id },
-        { $inc: { kebabs: this.firstGive } },
+        { userId },
+        { $inc: { kebabs: amount } },
         { upsert: true, new: true, setDefaultsOnInsert: true },
-      )
-      .exec((err, _user) => {
-        if (err) {
-          return;
-        }
+      );
+  }
 
-        channel.send(`<@${_user.userId}> chope 250 :burrito:`);
-      });
+  async didFirst(channel, userId) {
+    const _user = await this.userQuery(userId, this.firstGive);
+    channel.send(`<@${_user.userId}> gagne ${this.firstGive} :burrito:`);
+  }
+
+  async giveMoney(channel, userId, amount) {
+    const _user = await this.userQuery(userId, amount);
+    channel.send(`<@${_user.userId}> gagne ${amount} :burrito: ! <3`);
   }
 }
 
