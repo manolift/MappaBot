@@ -1,5 +1,6 @@
 const Commando = require('discord.js-commando');
 const user = require('../../modules/user');
+const sweetMessages = require('../../modules/sweetMessages');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -17,6 +18,12 @@ module.exports = class FirstCommand extends Commando.Command {
           key: 'value',
           label: 'Pile ou Face',
           prompt: 'Choisi pile ou face',
+          type: 'string',
+        },
+        {
+          key: 'kebabs',
+          label: 'Kebabs',
+          prompt: 'Nombre de kebabs',
           type: 'string',
         },
       ],
@@ -38,17 +45,60 @@ module.exports = class FirstCommand extends Commando.Command {
     return false;
   }
 
-  run(message, { value }) {
+  async run(message, { value, kebabs }) {
     const normalize = str => str.toLowerCase().trim();
     const valid = normalize(value) === 'pile' || normalize(value) === 'face';
     const randomValue = this.randomNumber();
+    const userId = message.author.id;
+    const _user = await user.get(userId);
 
-    if (valid) {
-      if (this.hasWon(randomValue, value)) {
-        user.giveMoney(message.channel, message.author.id, 50);
-      } else {
-        message.channel.send(':robot: Perdu VICTIME :robot:');
-      }
+    if (!valid) {
+      sweetMessages.addError({
+        name: 'Invalide',
+        value: 'Utilise sois `pile` ou `face`',
+      });
     }
+
+    if (kebabs < 0) {
+      sweetMessages.addError({
+        name: 'Kebabs',
+        value: 'Tu dois mettre un nombre de kebab positif',
+      });
+    }
+
+    /**
+     * Cut the flow, otherwise max call size exception
+     */
+    if (!valid || kebabs < 0) {
+      return sweetMessages.send(message);
+    }
+
+    /**
+     * If not enough money, we cut the flow
+     */
+    if (kebabs > _user.kebabs) {
+      sweetMessages.addError({
+        name: 'Attention',
+        value: `Tu n'as pas assez de :burrito:, il t'en manque ${kebabs - _user.kebabs}!`,
+      });
+
+      return sweetMessages.send(message);
+    }
+
+    if (this.hasWon(randomValue, value)) {
+      user.updateMoney(userId, kebabs);
+      sweetMessages.addValid({
+        name: 'Gagné',
+        value: `Tu as gagné ${kebabs} :burrito:`,
+      });
+    } else {
+      user.updateMoney(userId, -kebabs);
+      sweetMessages.addError({
+        name: 'Perdu',
+        value: `Tu as perdu ${kebabs} :burrito:`,
+      });
+    }
+
+    return sweetMessages.send(message);
   }
 };

@@ -1,4 +1,4 @@
-const user = require('../db/models/user');
+const Client = require('../db/models/user');
 
 class User {
   constructor() {
@@ -7,23 +7,24 @@ class User {
     this.firstGive = this.defaultGive * this.ratio;
   }
 
+  get(userId) {
+    return Client.findOne({ userId });
+  }
+
   userQuery(userId, amount) {
-    return user
-      .findOneAndUpdate(
-        { userId },
-        { $inc: { kebabs: amount } },
-        { upsert: true, new: true, setDefaultsOnInsert: true },
-      );
+    return Client.findOneAndUpdate(
+      { userId },
+      { $inc: { kebabs: amount } },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    );
   }
 
-  async didFirst(channel, userId) {
-    const _user = await this.userQuery(userId, this.firstGive);
-    channel.send(`<@${_user.userId}> gagne ${this.firstGive} :burrito:`);
+  async didFirst(userId) {
+    await this.userQuery(userId, this.firstGive);
   }
 
-  async giveMoney(channel, userId, amount) {
-    const _user = await this.userQuery(userId, amount);
-    channel.send(`<@${_user.userId}> gagne ${amount} :burrito: ! <3`);
+  async updateMoney(userId, amount) {
+    await this.userQuery(userId, amount);
   }
 }
 
