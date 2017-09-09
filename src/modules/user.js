@@ -11,6 +11,10 @@ class User {
     return Client.findOne({ userId });
   }
 
+  get users() {
+    return Client.find({}).sort('-kebabs');
+  }
+
   userQuery(userId, amount) {
     return Client.findOneAndUpdate(
       { userId },
