@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "jest --watch --env=node"
+    "test": "jest --watch --env=node --verbose"
   },
   "license": "ISC",
   "devDependencies": {
