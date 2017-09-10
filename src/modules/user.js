@@ -23,6 +23,26 @@ class User {
     );
   }
 
+  async register(userId) {
+    try {
+      const clientExists = await Client.findOne({ userId });
+
+      if (!clientExists) {
+        const client = new Client({ userId });
+        client.save();
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  async giveDaily() {
+    await Client.update({}, { $inc: { kebabs: this.defaultGive * 2 } }, { multi: true });
+  }
+
   async didFirst(userId) {
     await this.userQuery(userId, this.firstGive);
   }

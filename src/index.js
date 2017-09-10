@@ -6,6 +6,8 @@ const sqlite = require('sqlite');
 const env = require('dotenv');
 const path = require('path');
 const initMongo = require('./db/config');
+const moment = require('moment');
+const user = require('./modules/user');
 
 env.config();
 const log = arg => console.log(arg);
@@ -16,6 +18,15 @@ const client = new Commando.Client({
 client.on('ready', () => {
   initMongo();
   log('Bot is ready');
+  const tomorrowMidnight = moment()
+    .add(1, 'day')
+    .startOf('day');
+  let tstampLeft = tomorrowMidnight.diff(moment());
+
+  setTimeout(async () => {
+    await user.giveDaily();
+    tstampLeft = 1000 * 60 * 60 * 24;
+  }, tstampLeft);
 });
 
 client.setProvider(

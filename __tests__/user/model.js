@@ -71,4 +71,32 @@ describe('Test for album command', () => {
 
     expect(__user__.kebabs).toEqual(DEFAULT_MONEY_USER + user.firstGive);
   });
+
+  it('should create new user if not here in database', async () => {
+    expect.assertions(1);
+    const registered = await user.register(1);
+
+    expect(registered).toBe(true);
+  });
+
+  it('should not create new user if here in database', async () => {
+    expect.assertions(1);
+    const registered = await user.register(2);
+
+    expect(registered).toBe(false);
+  });
+
+  it('should update all user for n kebabs', async () => {
+    expect.assertions(1);
+    const newUser = new User({ userId: 2 });
+    newUser.save();
+
+    await user.giveDaily();
+    const firstUser = await user.get(1);
+    const secondUser = await user.get(2);
+
+    const toGive = DEFAULT_MONEY_USER + (user.defaultGive * 2);
+
+    expect([firstUser.kebabs, secondUser.kebabs]).toEqual([toGive, toGive]);
+  });
 });
