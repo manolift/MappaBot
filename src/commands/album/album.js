@@ -18,7 +18,7 @@ module.exports = class AlbumCommand extends Commando.Command {
     this.random = null;
   }
 
-  async getPhotosLength() {
+  getPhotosLength() {
     return Photos.count();
   }
 
