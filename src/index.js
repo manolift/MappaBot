@@ -8,6 +8,7 @@ const path = require('path');
 const initMongo = require('./db/config');
 const moment = require('moment');
 const user = require('./modules/user');
+const Emoji = require('./modules/emoji');
 
 env.config();
 const log = arg => console.log(arg);
@@ -22,6 +23,8 @@ client.on('ready', () => {
     .add(1, 'day')
     .startOf('day');
   let tstampLeft = tomorrowMidnight.diff(moment());
+
+  Emoji.setKebab(client.emojis.find('name', 'kebab').id);
 
   setTimeout(async () => {
     await user.giveDaily();

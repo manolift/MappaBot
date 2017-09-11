@@ -2,6 +2,7 @@ const Commando = require('discord.js-commando');
 const first = require('../../modules/first');
 const user = require('../../modules/user');
 const sweetMessages = require('../../modules/sweetMessages');
+const Emoji = require('../../modules/emoji');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -32,7 +33,7 @@ module.exports = class FirstCommand extends Commando.Command {
 
       sweetMessages.addValid({
         name: 'FIRST',
-        value: `Bien joué! Tu gagne ${user.firstGive} :burrito: !`,
+        value: `Bien joué! Tu gagne ${user.firstGive} ${Emoji.kebab} !`,
       });
 
       return sweetMessages.send(message);

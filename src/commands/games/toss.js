@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const user = require('../../modules/user');
 const sweetMessages = require('../../modules/sweetMessages');
+const Emoji = require('../../modules/emoji');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -62,7 +63,7 @@ module.exports = class FirstCommand extends Commando.Command {
     if (kebabs < 0) {
       sweetMessages.addError({
         name: 'Kebabs',
-        value: 'Tu dois mettre un nombre de kebab positif',
+        value: `Tu dois mettre un nombre de ${Emoji.kebab} positif`,
       });
     }
 
@@ -79,7 +80,7 @@ module.exports = class FirstCommand extends Commando.Command {
     if (kebabs > _user.kebabs) {
       sweetMessages.addError({
         name: 'Attention',
-        value: `Tu n'as pas assez de :burrito:, il t'en manque ${kebabs - _user.kebabs}!`,
+        value: `Tu n'as pas assez de ${Emoji.kebab}, il t'en manque ${kebabs - _user.kebabs}!`,
       });
 
       return sweetMessages.send(message);
@@ -89,13 +90,13 @@ module.exports = class FirstCommand extends Commando.Command {
       user.updateMoney(userId, kebabs);
       sweetMessages.addValid({
         name: 'Gagné',
-        value: `Tu as gagné ${kebabs} :burrito:`,
+        value: `Tu as gagné ${kebabs} ${Emoji.kebab}`,
       });
     } else {
       user.updateMoney(userId, -kebabs);
       sweetMessages.addError({
         name: 'Perdu',
-        value: `Tu as perdu ${kebabs} :burrito:`,
+        value: `Tu as perdu ${kebabs} ${Emoji.kebab}`,
       });
     }
 

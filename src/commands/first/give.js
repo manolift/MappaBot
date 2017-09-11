@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const user = require('../../modules/user');
 const sweetMessages = require('../../modules/sweetMessages');
+const Emoji = require('../../modules/emoji');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -39,7 +40,7 @@ module.exports = class FirstCommand extends Commando.Command {
     if (!isValidAmount) {
       sweetMessages.addError({
         name: 'Donation',
-        value: 'Ton nombre de kebab est invalide',
+        value: `Ton nombre de ${Emoji.kebab} est invalide`,
       });
     }
 
@@ -66,12 +67,12 @@ module.exports = class FirstCommand extends Commando.Command {
     if (!hasGiven) {
       sweetMessages.addError({
         name: 'Donation',
-        value: 'Tu n\'as pas assez de :burrito:',
+        value: `Tu n'as pas assez de ${Emoji.kebab}`,
       });
     } else {
       sweetMessages.addValid({
         name: 'Donation',
-        value: `Tu as donné ${args.kebabs}`,
+        value: `Tu as donné ${args.kebabs} ${Emoji.kebab}`,
       });
     }
 

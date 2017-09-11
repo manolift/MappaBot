@@ -1,6 +1,7 @@
 const Commando = require('discord.js-commando');
 const user = require('../../modules/user');
 const sweetMessages = require('../../modules/sweetMessages');
+const Emoji = require('../../modules/emoji');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -24,7 +25,7 @@ module.exports = class FirstCommand extends Commando.Command {
       value: users.map((_user, i) => {
         const profile = message.guild.members.find('id', _user.userId).user.username;
 
-        return `${i + 1} - ${profile} : ${_user.kebabs} :burrito:`;
+        return `${i + 1} - ${profile} : ${_user.kebabs} ${Emoji.kebab}`;
       }).join('\n'),
     });
 
