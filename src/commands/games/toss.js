@@ -12,7 +12,7 @@ module.exports = class FirstCommand extends Commando.Command {
       description: 'Pile ou face',
       details: 'Pile ou face',
       examples: ['!toss pile'],
-      argsCount: 1,
+      argsCount: 2,
       args: [
         {
           key: 'value',

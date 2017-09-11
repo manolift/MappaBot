@@ -31,7 +31,7 @@ module.exports = class FirstCommand extends Commando.Command {
   }
 
   async run(message, args) {
-    const id = args.userId.replace(/<@/, '');
+    const id = args.userId.replace(/<@/, '').replace('!', '');
     const userId = id.replace(/>/, '');
     const isValidAmount = args.kebabs > 0;
     const notValidUser = (message_, uid) => !message_.guild.members.exists('id', uid);
