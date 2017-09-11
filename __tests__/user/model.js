@@ -99,4 +99,18 @@ describe('Test for album command', () => {
 
     expect([firstUser.kebabs, secondUser.kebabs]).toEqual([toGive, toGive]);
   });
+
+  it('should give to one and remove for one if enough money', async () => {
+    expect.assertions(1);
+    const hasGiven = await user.giveTo(1, 2, 10);
+
+    expect(hasGiven).toBe(true);
+  });
+
+  it('should throw if trying to give too much money', async () => {
+    expect.assertions(1);
+    const hasGiven = await user.giveTo(1, 2, 60);
+
+    expect(hasGiven).toBe(false);
+  });
 });

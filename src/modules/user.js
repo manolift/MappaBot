@@ -50,6 +50,21 @@ class User {
   async updateMoney(userId, amount) {
     await this.userQuery(userId, amount);
   }
+
+  async giveTo(initiator, userId, amount) {
+    const client = await Client.findOne({ userId: initiator });
+
+    if (client.kebabs > amount) {
+      await this.userQuery(userId, +amount);
+      await this.userQuery(initiator, -amount);
+
+      // Everything went well
+      return true;
+    }
+
+    // Not enough money
+    return false;
+  }
 }
 
 module.exports = new User();
