@@ -1,7 +1,7 @@
 const Commando = require('discord.js-commando');
 const { user, message, emoji } = require('../../modules');
 
-module.exports = class FirstCommand extends Commando.Command {
+module.exports = class KebabCommand extends Commando.Command {
   constructor(client) {
     super(client, {
       name: 'kebab',
