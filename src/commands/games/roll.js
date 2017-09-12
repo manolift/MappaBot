@@ -54,33 +54,40 @@ module.exports = class FirstCommand extends Commando.Command {
 
   async run(msg, { value, stack }) {
     // Safe to use since we control in validStack method
-    const [min, max] = stack.split('-');
-    this.min = min;
-    this.max = max;
+    // const [min, max] = stack.split('-');
+    // this.min = min;
+    // this.max = max;
 
-    if (number.isValid(value) && number.isValidStack(stack)) {
-      if (this.hasWon(this.randomNumber)) {
-        const amountWon = this.getAmountByThreshold(value);
-        await user.updateMoney(msg.author.id, amountWon - value);
+    // if (number.isValid(value) && number.isValidStack(stack)) {
+    //   if (this.hasWon(this.randomNumber)) {
+    //     const amountWon = this.getAmountByThreshold(value);
+    //     await user.updateMoney(msg.author.id, amountWon - value);
 
-        message.addValid({
-          name: 'Gagné!',
-          value: `Tu as gagné ${amountWon} ${emoji.kebab} !`,
-        });
-      } else {
-        await user.updateMoney(msg.author.id, -value);
+    //     message.addValid({
+    //       name: 'Gagné!',
+    //       value: `Tu as gagné ${amountWon} ${emoji.kebab} !`,
+    //     });
+    //   } else {
+    //     await user.updateMoney(msg.author.id, -value);
 
-        message.addError({
-          name: 'Perdu...',
-          value: `Tu as perdu ${value} ${emoji.kebab} !`,
-        });
-      }
-    } else {
-      message.addError({
-        name: 'Mauvais format de commande',
-        value: '!roll <kebabs> [min]-[max]',
-      });
-    }
+    //     message.addError({
+    //       name: 'Perdu...',
+    //       value: `Tu as perdu ${value} ${emoji.kebab} !`,
+    //     });
+    //   }
+    // } else {
+    //   message.addError({
+    //     name: 'Mauvais format de commande',
+    //     value: '!roll <kebabs> [min]-[max]',
+    //   });
+    // }
+
+    // message.send(msg);
+
+    message.addError({
+      name: 'bug',
+      value: 'bientôt dispo'
+    });
 
     message.send(msg);
   }
