@@ -60,7 +60,7 @@ module.exports = class FirstCommand extends Commando.Command {
       return message.send(msg);
     }
 
-    const hasGiven = await user.giveTo(message.author.id, userId, args.kebabs);
+    const hasGiven = await user.giveTo(msg.author.id, userId, args.kebabs);
 
     if (!hasGiven) {
       message.addError({

@@ -35,8 +35,13 @@ module.exports = class FirstCommand extends Commando.Command {
         name: 'Valid stack',
         value: 'stack been valid',
       });
+    } else {
+      message.addError({
+        name: 'Invalid stack',
+        value: 'throw it',
+      });
     }
 
-    message.send();
+    message.send(msg);
   }
 };
