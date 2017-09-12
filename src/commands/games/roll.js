@@ -1,7 +1,7 @@
 const Commando = require('discord.js-commando');
 const { user, emoji, number, message } = require('../../modules');
 
-module.exports = class FirstCommand extends Commando.Command {
+module.exports = class RollCommands extends Commando.Command {
   constructor(client) {
     super(client, {
       name: 'roll',
@@ -43,51 +43,47 @@ module.exports = class FirstCommand extends Commando.Command {
   getAmountByThreshold(value) {
     if (this.min === this.max) {
       /**
-       * If its !roll 100 0-1, we win 10K, so if its exact
-       * (aka 0-0), we return 15K kebabs
+       * Its a 15* coefficient to prevent 1 value spam
+       * For !roll 1 50-50 (aiming to spam for 50)
+       * It gives you 150 kebabs
+       * Same command, but 100 kebabs,
+       * it gives you 15000 kebabs
        */
-      return 15000;
+      return Math.floor(15000 * (1 / 100) * value);
     }
-
-    return Math.floor((((this.min + 1) / this.max) * 100) * value);
+    return Math.floor(((1 / (this.max - this.min)) * 100) * value);
   }
 
   async run(msg, { value, stack }) {
     // Safe to use since we control in validStack method
-    // const [min, max] = stack.split('-');
-    // this.min = min;
-    // this.max = max;
+    const [min, max] = stack.split('-');
+    this.min = min;
+    this.max = max;
 
-    // if (number.isValid(value) && number.isValidStack(stack)) {
-    //   if (this.hasWon(this.randomNumber)) {
-    //     const amountWon = this.getAmountByThreshold(value);
-    //     await user.updateMoney(msg.author.id, amountWon - value);
+    if (number.isValid(value) && number.isValidStack(stack)) {
+      const randomNumber = this.randomNumber;
+      if (this.hasWon(randomNumber)) {
+        const amountWon = this.getAmountByThreshold(value);
+        await user.updateMoney(msg.author.id, amountWon - value);
 
-    //     message.addValid({
-    //       name: 'Gagné!',
-    //       value: `Tu as gagné ${amountWon} ${emoji.kebab} !`,
-    //     });
-    //   } else {
-    //     await user.updateMoney(msg.author.id, -value);
+        message.addValid({
+          name: `Gagné! (${randomNumber})`,
+          value: `Tu as gagné ${amountWon} ${emoji.kebab} !`,
+        });
+      } else {
+        await user.updateMoney(msg.author.id, -value);
 
-    //     message.addError({
-    //       name: 'Perdu...',
-    //       value: `Tu as perdu ${value} ${emoji.kebab} !`,
-    //     });
-    //   }
-    // } else {
-    //   message.addError({
-    //     name: 'Mauvais format de commande',
-    //     value: '!roll <kebabs> [min]-[max]',
-    //   });
-    // }
-
-    // message.send(msg);
-
-    message.addError({
-      name: 'bug',
-      value: 'bientôt dispo'
-    });
+        message.addError({
+          name: `Perdu... (${randomNumber})`,
+          value: `Tu as perdu ${value} ${emoji.kebab} !`,
+        });
+      }
+    } else {
+      message.addError({
+        name: 'Mauvais format de commande',
+        value: '!roll <kebabs> [min]-[max]',
+      });
+    }
 
     message.send(msg);
   }
