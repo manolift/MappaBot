@@ -1,7 +1,5 @@
 const Commando = require('discord.js-commando');
-const user = require('../../modules/user');
-const sweetMessages = require('../../modules/sweetMessages');
-const Emoji = require('../../modules/emoji');
+const { user, message, emoji } = require('../../modules');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -31,51 +29,51 @@ module.exports = class FirstCommand extends Commando.Command {
     });
   }
 
-  async run(message, args) {
+  async run(msg, args) {
     const id = args.userId.replace(/<@/, '').replace('!', '');
     const userId = id.replace(/>/, '');
     const isValidAmount = args.kebabs > 0;
     const notValidUser = (message_, uid) => !message_.guild.members.exists('id', uid);
 
     if (!isValidAmount) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Donation',
-        value: `Ton nombre de ${Emoji.kebab} est invalide`,
+        value: `Ton nombre de ${emoji.kebab} est invalide`,
       });
     }
 
-    if (message.author.id === userId) {
-      sweetMessages.addError({
+    if (msg.author.id === userId) {
+      message.addError({
         name: 'Donation',
         value: 'Tu ne peut pas te donner à toi même...',
       });
     }
 
-    if (notValidUser(message, userId)) {
-      sweetMessages.addError({
+    if (notValidUser(msg, userId)) {
+      message.addError({
         name: 'Donation',
         value: 'Cet utilisateur n\'existe pas',
       });
     }
 
-    if (!isValidAmount || message.author.id === userId || notValidUser(message, userId)) {
-      return sweetMessages.send(message);
+    if (!isValidAmount || msg.author.id === userId || notValidUser(msg, userId)) {
+      return message.send(msg);
     }
 
     const hasGiven = await user.giveTo(message.author.id, userId, args.kebabs);
 
     if (!hasGiven) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Donation',
-        value: `Tu n'as pas assez de ${Emoji.kebab}`,
+        value: `Tu n'as pas assez de ${emoji.kebab}`,
       });
     } else {
-      sweetMessages.addValid({
+      message.addValid({
         name: 'Donation',
-        value: `Tu as donné ${args.kebabs} ${Emoji.kebab}`,
+        value: `Tu as donné ${args.kebabs} ${emoji.kebab}`,
       });
     }
 
-    return sweetMessages.send(message);
+    return message.send(msg);
   }
 };

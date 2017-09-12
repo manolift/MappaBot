@@ -1,7 +1,5 @@
 const Commando = require('discord.js-commando');
-const user = require('../../modules/user');
-const sweetMessages = require('../../modules/sweetMessages');
-const Emoji = require('../../modules/emoji');
+const { user, message, emoji } = require('../../modules');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -17,18 +15,18 @@ module.exports = class FirstCommand extends Commando.Command {
     });
   }
 
-  async run(message) {
+  async run(msg) {
     const users = await user.users;
 
-    sweetMessages.addValid({
+    message.addValid({
       name: 'Ladderboard',
       value: users.map((_user, i) => {
         const profile = message.guild.members.find('id', _user.userId).user.username;
 
-        return `${i + 1} - ${profile} : ${_user.kebabs} ${Emoji.kebab}`;
+        return `${i + 1} - ${profile} : ${_user.kebabs} ${emoji.kebab}`;
       }).join('\n'),
     });
 
-    sweetMessages.send(message);
+    message.send(msg);
   }
 };

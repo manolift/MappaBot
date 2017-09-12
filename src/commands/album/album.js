@@ -1,6 +1,6 @@
 const Commando = require('discord.js-commando');
 const Photos = require('../../db/models/album');
-const sweetMessages = require('../../modules/sweetMessages');
+const { message } = require('../../modules');
 
 module.exports = class AlbumCommand extends Commando.Command {
   constructor(client) {
@@ -26,11 +26,11 @@ module.exports = class AlbumCommand extends Commando.Command {
     return Photos.findOne().skip(this.random);
   }
 
-  async run(message) {
+  async run(msg) {
     const len = await this.getPhotosLength();
     this.random = Math.floor(Math.random() * len);
     const photo = await this.getRandomPhoto();
 
-    sweetMessages.sendImage(message, photo.link);
+    message.sendImage(msg, photo.link);
   }
 };

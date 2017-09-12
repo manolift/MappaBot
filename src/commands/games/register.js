@@ -1,6 +1,5 @@
 const Commando = require('discord.js-commando');
-const user = require('../../modules/user');
-const sweetMessages = require('../../modules/sweetMessages');
+const { user, message } = require('../../modules');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -16,21 +15,22 @@ module.exports = class FirstCommand extends Commando.Command {
     });
   }
 
-  async run(message) {
-    const registered = await user.register(message.author.id);
+  async run(msg) {
+    const userId = msg.author.id;
+    const registered = await user.register(userId);
 
     if (registered) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Enregistrement',
-        value: `<@${message.author.id}> à déjà été enregistré ...`,
+        value: `<@${userId}> à déjà été enregistré ...`,
       });
     } else {
-      sweetMessages.addValid({
+      message.addValid({
         name: 'Enregistrement',
-        value: `<@${message.author.id}> à bien été enregistré !`,
+        value: `<@${userId}> à bien été enregistré !`,
       });
     }
 
-    sweetMessages.send(message);
+    message.send(msg);
   }
 };

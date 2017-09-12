@@ -1,8 +1,5 @@
 const Commando = require('discord.js-commando');
-const first = require('../../modules/first');
-const user = require('../../modules/user');
-const sweetMessages = require('../../modules/sweetMessages');
-const Emoji = require('../../modules/emoji');
+const { user, message, emoji, first } = require('../../modules');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -18,25 +15,25 @@ module.exports = class FirstCommand extends Commando.Command {
     });
   }
 
-  run(message) {
+  run(msg) {
     if (first.hasBeenDone()) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Trop tard',
         value: 'Le first à déjà été pris :weary:',
       });
 
-      return sweetMessages.send(message);
+      return message.send(msg);
     }
 
     return first.do(() => {
-      user.didFirst(message.author.id);
+      user.didFirst(msg.author.id);
 
-      sweetMessages.addValid({
+      message.addValid({
         name: 'FIRST',
-        value: `Bien joué! Tu gagne ${user.firstGive} ${Emoji.kebab} !`,
+        value: `Bien joué! Tu gagne ${user.firstGive} ${emoji.kebab} !`,
       });
 
-      return sweetMessages.send(message);
+      return message.send(msg);
     });
   }
 };

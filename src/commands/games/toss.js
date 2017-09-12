@@ -1,7 +1,5 @@
 const Commando = require('discord.js-commando');
-const user = require('../../modules/user');
-const sweetMessages = require('../../modules/sweetMessages');
-const Emoji = require('../../modules/emoji');
+const { user, message, emoji } = require('../../modules');
 
 module.exports = class FirstCommand extends Commando.Command {
   constructor(client) {
@@ -46,24 +44,24 @@ module.exports = class FirstCommand extends Commando.Command {
     return false;
   }
 
-  async run(message, { value, kebabs }) {
+  async run(msg, { value, kebabs }) {
     const normalize = str => str.toLowerCase().trim();
     const valid = normalize(value) === 'pile' || normalize(value) === 'face';
     const randomValue = this.randomNumber();
-    const userId = message.author.id;
+    const userId = msg.author.id;
     const _user = await user.get(userId);
 
     if (!valid) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Invalide',
         value: 'Utilise sois `pile` ou `face`',
       });
     }
 
     if (kebabs < 0) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Kebabs',
-        value: `Tu dois mettre un nombre de ${Emoji.kebab} positif`,
+        value: `Tu dois mettre un nombre de ${emoji.kebab} positif`,
       });
     }
 
@@ -71,35 +69,35 @@ module.exports = class FirstCommand extends Commando.Command {
      * Cut the flow, otherwise max call size exception
      */
     if (!valid || kebabs < 0) {
-      return sweetMessages.send(message);
+      return message.send(msg);
     }
 
     /**
      * If not enough money, we cut the flow
      */
     if (kebabs > _user.kebabs) {
-      sweetMessages.addError({
+      message.addError({
         name: 'Attention',
-        value: `Tu n'as pas assez de ${Emoji.kebab}, il t'en manque ${kebabs - _user.kebabs}!`,
+        value: `Tu n'as pas assez de ${emoji.kebab}, il t'en manque ${kebabs - _user.kebabs}!`,
       });
 
-      return sweetMessages.send(message);
+      return message.send(msg);
     }
 
     if (this.hasWon(randomValue, value)) {
       user.updateMoney(userId, kebabs);
-      sweetMessages.addValid({
+      message.addValid({
         name: 'Gagné',
-        value: `Tu as gagné ${kebabs} ${Emoji.kebab}`,
+        value: `Tu as gagné ${kebabs} ${emoji.kebab}`,
       });
     } else {
       user.updateMoney(userId, -kebabs);
-      sweetMessages.addError({
+      message.addError({
         name: 'Perdu',
-        value: `Tu as perdu ${kebabs} ${Emoji.kebab}`,
+        value: `Tu as perdu ${kebabs} ${emoji.kebab}`,
       });
     }
 
-    return sweetMessages.send(message);
+    return message.send(msg);
   }
 };
