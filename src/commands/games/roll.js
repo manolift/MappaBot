@@ -60,18 +60,27 @@ module.exports = class RollCommands extends Commando.Command {
     this.min = min;
     this.max = max;
 
+    if (user.controlMoney(msg.author.id, value)) {
+      message.addError({
+        name: 'Kebabs',
+        value: `Pas assez de ${emoji.kebab}`,
+      });
+
+      return message.send(msg);
+    }
+
     if (number.isValid(value) && number.isValidStack(stack)) {
       const randomNumber = this.randomNumber;
       if (this.hasWon(randomNumber)) {
         const amountWon = this.getAmountByThreshold(value);
-        await user.updateMoney(msg.author.id, amountWon - value);
+        await user.winMoney(msg.author.id, amountWon - value);
 
         message.addValid({
           name: `Gagné! (${randomNumber})`,
           value: `Tu as gagné ${amountWon} ${emoji.kebab} !`,
         });
       } else {
-        await user.updateMoney(msg.author.id, -value);
+        await user.winMoney(msg.author.id, -value);
 
         message.addError({
           name: `Perdu... (${randomNumber})`,
