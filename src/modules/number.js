@@ -3,7 +3,7 @@ class NumberValidation {
     const tmp = str.split('-');
     const [min, max] = tmp;
 
-    if (tmp.length !== 2) {
+    if (tmp.length !== 2 || min > max) {
       return false;
     }
 
