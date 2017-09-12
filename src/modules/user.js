@@ -26,7 +26,7 @@ class User {
   async controlMoney(userId, amount) {
     const client = await Client.findOne({ userId });
 
-    if (client.kebabs < amount) {
+    if (client.kebabs > amount) {
       return false;
     }
 
@@ -59,10 +59,6 @@ class User {
 
   async updateMoney(userId, amount) {
     await this.userQuery(userId, amount);
-  }
-
-  async winMoney(userId, amount) {
-    await this.controlMoney(userId, amount);
   }
 
   async giveTo(initiator, userId, amount) {

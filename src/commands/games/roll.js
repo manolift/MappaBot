@@ -59,8 +59,9 @@ module.exports = class RollCommands extends Commando.Command {
     const [min, max] = stack.split('-');
     this.min = min;
     this.max = max;
+    const notEnoughMoney = await user.controlMoney(msg.author.id, value);
 
-    if (user.controlMoney(msg.author.id, value)) {
+    if (notEnoughMoney) {
       message.addError({
         name: 'Kebabs',
         value: `Pas assez de ${emoji.kebab}`,
@@ -73,14 +74,14 @@ module.exports = class RollCommands extends Commando.Command {
       const randomNumber = this.randomNumber;
       if (this.hasWon(randomNumber)) {
         const amountWon = this.getAmountByThreshold(value);
-        await user.winMoney(msg.author.id, amountWon - value);
+        await user.updateMoney(msg.author.id, amountWon - value);
 
         message.addValid({
           name: `Gagné! (${randomNumber})`,
           value: `Tu as gagné ${amountWon} ${emoji.kebab} !`,
         });
       } else {
-        await user.winMoney(msg.author.id, -value);
+        await user.updateMoney(msg.author.id, -value);
 
         message.addError({
           name: `Perdu... (${randomNumber})`,
