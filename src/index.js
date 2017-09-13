@@ -42,6 +42,7 @@ client.registry
     ['first', 'Chope le first'],
     ['games', 'Mini jeux'],
     ['infos', 'Informations'],
+    ['bank', 'Informations bancaires'],
   ])
   .registerDefaults()
   .registerCommandsIn(path.join(__dirname, 'commands'));

@@ -1,14 +1,16 @@
 const Client = require('../db/models/user');
+const Bank = require('../db/models/bank');
+const moment = require('moment');
 
 class User {
   constructor() {
-    this.ratio = 5;
-    this.defaultGive = 50;
+    this.ratio = 3;
+    this.defaultGive = 500;
     this.firstGive = this.defaultGive * this.ratio;
   }
 
   get(userId) {
-    return Client.findOne({ userId });
+    return Client.findOne({ userId });
   }
 
   get users() {
@@ -23,14 +25,90 @@ class User {
     );
   }
 
+  async updateBank(method, userId, amount, cb) {
+    const client = await Client.findOne({ userId }).populate('bank');
+
+    if (!client.bank) {
+      const newBank = new Bank({
+        belongsTo: client._id,
+        lastSet: new Date(),
+      });
+
+      return newBank.save(async (err) => {
+        if (err) {
+          return console.log(err);
+        }
+
+        try {
+          await Client.findByIdAndUpdate(client.id, { bank: newBank._id, $inc: { kebabs: -amount }});
+          const updatedBank = await Bank.findByIdAndUpdate(newBank.id, { $inc: { amount }}, { new: true });
+
+          return cb(updatedBank);
+        } catch (e) {
+          console.log('err at save bank', e)
+        }
+      });
+    }
+
+    let query;
+    if (method === 'get') {
+      query = {
+        $inc: { amount },
+        lastGet: new Date()
+      }
+    } else {
+      query = {
+        $inc: { amount: -amount },
+        lastSet: new Date()
+      }
+    }
+
+    await Client.findByIdAndUpdate(client.id, { $inc: { kebabs: -amount }});
+    const updatedBank = await Bank.findByIdAndUpdate(client.bank.id, query, { new: true }
+    );
+
+    return cb(updatedBank);
+  }
+
+  async allowedTo(method, userId, date) {
+    const user = await this.get(userId).populate('bank');
+
+    if (!user.bank) {
+      return true;
+    }
+
+    if (method === 'get' && !user.bank.lastGet) {
+      return true;
+    }
+
+    const dayAfter = moment(method === 'push' ? user.bank.lastSet : user.bank.lastGet).add(1, 'day');
+    const date_ = moment(date);
+
+    return dayAfter.isBefore(date_);
+  }
+
   async controlMoney(userId, amount) {
     const client = await Client.findOne({ userId });
 
-    if (client.kebabs > amount) {
+    if (client.kebabs >= amount) {
       return false;
     }
 
     return true;
+  }
+
+  async controlMoneyInBank(userId, amount) {
+    try {
+      const client = await Client.findOne({ userId }).populate('bank');
+
+      if (amount > client.bank.amount) {
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   async register(userId) {
