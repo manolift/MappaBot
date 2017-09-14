@@ -2,7 +2,7 @@
 const expect = require('expect');
 const first = require('../src/modules/first');
 
-describe('Test for album command', () => {
+describe('Test for first command', () => {
   it('should be false at the start', () => {
     expect(first.first).toBe(false);
   });

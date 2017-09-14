@@ -32,8 +32,15 @@ module.exports = class RollCommands extends Commando.Command {
     this.max = undefined;
   }
 
+  getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min +1)) + min;
+  }
+
+
   get randomNumber() {
-    return Math.floor(Math.random() * (100 - (0 + 1))) + 0;
+    return this.getRandomIntInclusive(0, 100);
   }
 
   hasWon(random) {
@@ -54,12 +61,25 @@ module.exports = class RollCommands extends Commando.Command {
     return Math.floor(((1 / (this.max - this.min)) * 100) * value);
   }
 
+  isSpaceValid(min, max) {
+    return max - min <= 80;
+  }
+
   async run(msg, { value, stack }) {
     // Safe to use since we control in validStack method
     const [min, max] = stack.split('-');
     this.min = min;
     this.max = max;
     const notEnoughMoney = await user.controlMoney(msg.author.id, value);
+
+    if(!this.isSpaceValid(min, max)) {
+      message.addError({
+        name: 'Kebabs',
+        value: `Il te faut un écart de plus de 20% (0-80 minimum)`,
+      });
+
+      return message.send(msg);
+    }
 
     if (notEnoughMoney) {
       message.addError({

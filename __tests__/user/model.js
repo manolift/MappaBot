@@ -4,30 +4,27 @@ const mongoose = require('mongoose');
 const user = require('../../src/modules/user');
 const User = require('../../src/db/models/user');
 
-const DEFAULT_MONEY_USER = 50;
+const DEFAULT_MONEY_USER = User.schema.obj.kebabs.default;
+
+beforeAll(() => {
+  mongoose.Promise = Promise;
+  mongoose.connect('mongodb://localhost/mappabot', {
+    useMongoClient: true,
+  });
+});
+beforeEach(async () => {
+  const mockUser = new User({ userId: 1 });
+  await mockUser.save();
+});
+afterEach(async () => {
+  await User.remove({ userId: 1 });
+  await User.remove({ userId: 2 });
+});
+afterAll((done) => {
+  mongoose.disconnect(done);
+});
 
 describe('Test for album command', () => {
-  beforeAll(() => {
-    mongoose.Promise = Promise;
-    mongoose.connect('mongodb://localhost/mappabot', {
-      useMongoClient: true,
-    });
-  });
-
-  beforeEach(async () => {
-    const mockUser = new User({ userId: 1 });
-    await mockUser.save();
-  });
-
-  afterEach(async () => {
-    await User.remove({ userId: 1 });
-    await User.remove({ userId: 2 });
-  });
-
-  afterAll((done) => {
-    mongoose.disconnect(done);
-  });
-
   it('should get an user by its id', async () => {
     expect.assertions(1);
     const __user__ = await user.get(1);
@@ -51,9 +48,10 @@ describe('Test for album command', () => {
 
   it('should update user', async () => {
     expect.assertions(1);
-    const __user__ = await user.userQuery(1, 50);
+    const GIVEN_MONEY = 50;
+    const __user__ = await user.userQuery(1, GIVEN_MONEY);
 
-    expect(__user__.kebabs).toEqual(100);
+    expect(__user__.kebabs).toEqual(DEFAULT_MONEY_USER + GIVEN_MONEY);
   });
 
   it('should upsert new user', async () => {
@@ -109,7 +107,7 @@ describe('Test for album command', () => {
 
   it('should throw if trying to give too much money', async () => {
     expect.assertions(1);
-    const hasGiven = await user.giveTo(1, 2, 60);
+    const hasGiven = await user.giveTo(1, 2, DEFAULT_MONEY_USER*2);
 
     expect(hasGiven).toBe(false);
   });

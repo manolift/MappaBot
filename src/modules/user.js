@@ -64,8 +64,7 @@ class User {
     }
 
     await Client.findByIdAndUpdate(client.id, { $inc: { kebabs: -amount }});
-    const updatedBank = await Bank.findByIdAndUpdate(client.bank.id, query, { new: true }
-    );
+    const updatedBank = await Bank.findByIdAndUpdate(client.bank.id, query, { new: true });
 
     return cb(updatedBank);
   }
