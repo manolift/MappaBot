@@ -1,5 +1,5 @@
 const Commando = require('discord.js-commando');
-const { user, message, emoji } = require('../../modules');
+const { user, message, emoji, number } = require('../../modules');
 
 module.exports = class TossCommand extends Commando.Command {
   constructor(client) {
@@ -50,6 +50,7 @@ module.exports = class TossCommand extends Commando.Command {
     const randomValue = this.randomNumber();
     const userId = msg.author.id;
     const _user = await user.get(userId);
+    const validNumber = number.isValid(value);
 
     if (!valid) {
       message.addError({
@@ -65,10 +66,17 @@ module.exports = class TossCommand extends Commando.Command {
       });
     }
 
+    if (!validNumber) {
+      message.addError({
+        name: 'Kebab',
+        value: 'Tu dois mettre un chiffre valide..',
+      });
+    }
+
     /**
      * Cut the flow, otherwise max call size exception
      */
-    if (!valid || kebabs < 0) {
+    if (!valid || kebabs < 0 || !validNumber) {
       return message.send(msg);
     }
 

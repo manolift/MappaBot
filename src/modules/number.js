@@ -1,7 +1,8 @@
 class NumberValidation {
   _validateStack(str) {
     const tmp = str.split('-');
-    const [min, max] = tmp;
+    const min = parseInt(tmp[0], 10);
+    const max = parseInt(tmp[1], 10);
 
     if (tmp.length !== 2 || min > max) {
       return false;
