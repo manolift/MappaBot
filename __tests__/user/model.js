@@ -1,5 +1,4 @@
 /* eslint-env node, jest */
-const expect = require('expect');
 const mongoose = require('mongoose');
 const user = require('../../src/modules/user');
 const User = require('../../src/db/models/user');
@@ -107,7 +106,7 @@ describe('Test for album command', () => {
 
   it('should throw if trying to give too much money', async () => {
     expect.assertions(1);
-    const hasGiven = await user.giveTo(1, 2, DEFAULT_MONEY_USER*2);
+    const hasGiven = await user.giveTo(1, 2, DEFAULT_MONEY_USER * 2);
 
     expect(hasGiven).toBe(false);
   });

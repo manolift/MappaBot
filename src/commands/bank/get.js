@@ -1,7 +1,12 @@
 const Commando = require('discord.js-commando');
-const { user, message, emoji, first, number } = require('../../modules');
+const {
+  user,
+  message,
+  emoji,
+  number,
+} = require('../../modules');
 
-module.exports = class BankSaveCommand extends Commando.Command {
+module.exports = class BankGetCommand extends Commando.Command {
   constructor(client) {
     super(client, {
       name: 'bank take',

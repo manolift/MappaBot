@@ -1,6 +1,5 @@
 /* eslint-env node, jest */
 const number = require('../src/modules/number');
-const expect = require('expect');
 
 describe('Test if number is valid', () => {
   it('should validate number', () => {
@@ -35,7 +34,7 @@ describe('Check if stack given is valid', () => {
 
   it('should throw if stack has not good order', () => {
     expect(stack('100-60')).toBe(false);
-  })
+  });
 
   it('should validate if stack is well formed', () => {
     expect(stack('0-100')).toBe(true);
@@ -51,7 +50,7 @@ describe('Check if stack given is valid', () => {
 
   it('should throw an overflowed number', () => {
     expect(stack('50-1e1000')).toBe(false);
-  })
+  });
 
   it('should throw if max is > 100', () => {
     expect(stack('50-101')).toBe(false);
@@ -59,5 +58,5 @@ describe('Check if stack given is valid', () => {
 
   it('should validate if stack is correct', () => {
     expect(stack('0-100')).toBe(true);
-  })
+  });
 });

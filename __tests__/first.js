@@ -1,5 +1,4 @@
 /* eslint-env node, jest */
-const expect = require('expect');
 const first = require('../src/modules/first');
 
 describe('Test for first command', () => {

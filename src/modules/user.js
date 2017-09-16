@@ -10,7 +10,7 @@ class User {
   }
 
   get(userId) {
-    return Client.findOne({ userId });
+    return Client.findOne({ userId });
   }
 
   get users() {
@@ -39,14 +39,10 @@ class User {
           return console.log(err);
         }
 
-        try {
-          await Client.findByIdAndUpdate(client.id, { bank: newBank._id, $inc: { kebabs: -amount }});
-          const updatedBank = await Bank.findByIdAndUpdate(newBank.id, { $inc: { amount }}, { new: true });
+        await Client.findByIdAndUpdate(client.id, { bank: newBank._id, $inc: { kebabs: -amount }});
+        const updatedBank = await Bank.findByIdAndUpdate(newBank.id, { $inc: { amount }}, { new: true });
 
-          return cb(updatedBank);
-        } catch (e) {
-          console.log('err at save bank', e)
-        }
+        return cb(updatedBank);
       });
     }
 

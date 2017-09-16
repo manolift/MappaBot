@@ -2,7 +2,6 @@
 const Commando = require('discord.js-commando');
 const AlbumCommands = require('../src/commands/album/album');
 const mongoose = require('mongoose');
-const expect = require('expect');
 
 const client = new Commando.Client();
 const album = new AlbumCommands(client);

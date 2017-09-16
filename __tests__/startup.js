@@ -23,6 +23,7 @@ describe('App startup', () => {
     mongoose.connect('mongodb://localhost/mappabot', { useMongoClient: true }, () => {
       const admin = new mongoose.mongo.Admin(mongoose.connection.db);
       admin.buildInfo((err, info) => {
+        // eslint-disable-next-line
         expect(info.version).toMatch(/\bv?(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b/gi);
       });
     });
