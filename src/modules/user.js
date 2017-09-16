@@ -54,7 +54,7 @@ class User {
       }
     } else {
       query = {
-        $inc: { amount: -amount },
+        $inc: { amount },
         lastSet: new Date()
       }
     }
