@@ -9,7 +9,7 @@ module.exports = class FirstCommand extends Commando.Command {
       group: 'first',
       memberName: 'add',
       description: 'MAIS FIRST PUTAIN',
-      details: 'FIRST BORDEL LA',
+      details: 'FIRST BORDEL LÀ',
       examples: ['!first'],
       argsCount: 0,
     });
@@ -30,7 +30,7 @@ module.exports = class FirstCommand extends Commando.Command {
 
       message.addValid({
         name: 'FIRST',
-        value: `Bien joué! Tu gagne ${user.firstGive} ${emoji.kebab} !`,
+        value: `Bien joué! Tu gagnes ${user.firstGive} ${emoji.kebab} !`,
       });
 
       return message.send(msg);
