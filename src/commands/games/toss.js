@@ -50,7 +50,7 @@ module.exports = class TossCommand extends Commando.Command {
     const randomValue = this.randomNumber();
     const userId = msg.author.id;
     const _user = await user.get(userId);
-    const validNumber = number.isValid(value);
+    const validNumber = number.isValid(kebabs);
 
     if (!valid) {
       message.addError({
@@ -76,7 +76,7 @@ module.exports = class TossCommand extends Commando.Command {
     /**
      * Cut the flow, otherwise max call size exception
      */
-    if (!valid || kebabs < 0 || !validNumber) {
+    if (!valid || kebabs < 0 || !validNumber) {
       return message.send(msg);
     }
 
